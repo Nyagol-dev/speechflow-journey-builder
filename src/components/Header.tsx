@@ -12,7 +12,12 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 
-const Header = () => {
+interface HeaderProps {
+  activeSection: string;
+  onSectionChange: (section: string) => void;
+}
+
+const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
   const [streakDays] = useState(7);
 
   return (
@@ -28,16 +33,32 @@ const Header = () => {
 
         {/* Navigation */}
         <nav className="hidden md:flex items-center space-x-8">
-          <Button variant="ghost" className="text-primary font-medium">
+          <Button 
+            variant="ghost" 
+            className={activeSection === 'dashboard' ? 'text-primary font-medium' : 'text-gray-600 hover:text-primary'}
+            onClick={() => onSectionChange('dashboard')}
+          >
             Dashboard
           </Button>
-          <Button variant="ghost" className="text-gray-600 hover:text-primary">
+          <Button 
+            variant="ghost" 
+            className={activeSection === 'lessons' ? 'text-primary font-medium' : 'text-gray-600 hover:text-primary'}
+            onClick={() => onSectionChange('lessons')}
+          >
             Lessons
           </Button>
-          <Button variant="ghost" className="text-gray-600 hover:text-primary">
+          <Button 
+            variant="ghost" 
+            className={activeSection === 'progress' ? 'text-primary font-medium' : 'text-gray-600 hover:text-primary'}
+            onClick={() => onSectionChange('progress')}
+          >
             Progress
           </Button>
-          <Button variant="ghost" className="text-gray-600 hover:text-primary">
+          <Button 
+            variant="ghost" 
+            className={activeSection === 'profile' ? 'text-primary font-medium' : 'text-gray-600 hover:text-primary'}
+            onClick={() => onSectionChange('profile')}
+          >
             Profile
           </Button>
         </nav>
@@ -68,7 +89,7 @@ const Header = () => {
                 <p className="text-xs text-gray-500">jane.doe@example.com</p>
               </div>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer">
+              <DropdownMenuItem className="cursor-pointer" onClick={() => onSectionChange('profile')}>
                 <User className="mr-2 h-4 w-4" />
                 Profile
               </DropdownMenuItem>
