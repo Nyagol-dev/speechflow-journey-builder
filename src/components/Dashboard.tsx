@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import ProgressRing from './ProgressRing';
 import LessonCard from './LessonCard';
 import AchievementBadge from './AchievementBadge';
+import AudioRecorder from './AudioRecorder';
 import { Play, Award, Clock, User } from 'lucide-react';
 
 const Dashboard = () => {
@@ -82,6 +83,12 @@ const Dashboard = () => {
         <p className="text-gray-600">
           You're doing great! Keep up the excellent progress.
         </p>
+      </div>
+
+      {/* Speech Practice Section */}
+      <div>
+        <h2 className="text-xl font-semibold text-gray-900 mb-4 text-center">Practice Speaking</h2>
+        <AudioRecorder />
       </div>
 
       {/* Daily Goal Progress */}
