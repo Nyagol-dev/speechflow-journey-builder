@@ -19,8 +19,7 @@ export const useTextToSpeech = () => {
       const { data, error } = await supabase.functions.invoke('text-to-speech', {
         body: { 
           text: text.trim(),
-          voice,
-          language: 'en-US'
+          voice: voice || 'alloy'
         }
       });
 

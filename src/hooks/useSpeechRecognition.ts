@@ -68,8 +68,7 @@ export const useSpeechRecognition = () => {
       // Send to Supabase edge function
       const { data, error } = await supabase.functions.invoke('speech-to-text', {
         body: { 
-          audioData: base64Audio,
-          language: 'en-US' 
+          audioData: base64Audio
         }
       });
 

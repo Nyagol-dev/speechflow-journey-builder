@@ -1,3 +1,4 @@
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
@@ -11,52 +12,51 @@ serve(async (req) => {
   }
 
   try {
-    const { audioData, language = 'en-US' } = await req.json();
+    const { audioData } = await req.json();
     
     if (!audioData) {
       throw new Error('Audio data is required');
     }
 
-    const apiKey = Deno.env.get('GOOGLE_CLOUD_API_KEY');
+    const apiKey = Deno.env.get('OPENAI_API_KEY');
     if (!apiKey) {
-      throw new Error('Google Cloud API key not configured');
+      throw new Error('OpenAI API key not configured');
     }
 
-    // Convert base64 audio to binary
-    const audioBytes = Uint8Array.from(atob(audioData), c => c.charCodeAt(0));
+    // Convert base64 to binary audio data
+    const binaryString = atob(audioData);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
 
-    const response = await fetch(`https://speech.googleapis.com/v1/speech:recognize?key=${apiKey}`, {
+    // Create form data for OpenAI Whisper API
+    const formData = new FormData();
+    const audioBlob = new Blob([bytes], { type: 'audio/webm' });
+    formData.append('file', audioBlob, 'audio.webm');
+    formData.append('model', 'whisper-1');
+    formData.append('language', 'en');
+
+    const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
       },
-      body: JSON.stringify({
-        config: {
-          encoding: 'WEBM_OPUS',
-          sampleRateHertz: 48000,
-          languageCode: language,
-          enableAutomaticPunctuation: true,
-        },
-        audio: {
-          content: audioData,
-        },
-      }),
+      body: formData,
     });
 
     if (!response.ok) {
       const error = await response.text();
-      console.error('Google Speech API error:', error);
+      console.error('OpenAI Whisper API error:', error);
       throw new Error(`Speech recognition failed: ${error}`);
     }
 
     const result = await response.json();
-    const transcript = result.results?.[0]?.alternatives?.[0]?.transcript || '';
-    const confidence = result.results?.[0]?.alternatives?.[0]?.confidence || 0;
+    const transcript = result.text || '';
 
     return new Response(
       JSON.stringify({ 
         transcript, 
-        confidence,
         success: true 
       }),
       { 

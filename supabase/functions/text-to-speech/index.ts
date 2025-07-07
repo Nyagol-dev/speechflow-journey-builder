@@ -11,47 +11,46 @@ serve(async (req) => {
   }
 
   try {
-    const { text, voice = 'en-US-Standard-A', language = 'en-US' } = await req.json();
+    const { text, voice = 'alloy' } = await req.json();
     
     if (!text) {
       throw new Error('Text is required');
     }
 
-    const apiKey = Deno.env.get('GOOGLE_CLOUD_API_KEY');
+    const apiKey = Deno.env.get('OPENAI_API_KEY');
     if (!apiKey) {
-      throw new Error('Google Cloud API key not configured');
+      throw new Error('OpenAI API key not configured');
     }
 
-    const response = await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`, {
+    const response = await fetch('https://api.openai.com/v1/audio/speech', {
       method: 'POST',
       headers: {
+        'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        input: { text },
-        voice: {
-          languageCode: language,
-          name: voice,
-        },
-        audioConfig: {
-          audioEncoding: 'MP3',
-          speakingRate: 1.0,
-          pitch: 0.0,
-        },
+        model: 'tts-1',
+        input: text,
+        voice: voice,
+        response_format: 'mp3',
       }),
     });
 
     if (!response.ok) {
       const error = await response.text();
-      console.error('Google Text-to-Speech API error:', error);
+      console.error('OpenAI TTS API error:', error);
       throw new Error(`Text-to-speech failed: ${error}`);
     }
 
-    const result = await response.json();
+    // Convert audio buffer to base64
+    const arrayBuffer = await response.arrayBuffer();
+    const base64Audio = btoa(
+      String.fromCharCode(...new Uint8Array(arrayBuffer))
+    );
     
     return new Response(
       JSON.stringify({ 
-        audioContent: result.audioContent,
+        audioContent: base64Audio,
         success: true 
       }),
       { 
