@@ -11,14 +11,21 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { supabase } from '@/integrations/supabase/client';
+import { Session } from '@supabase/supabase-js';
 
 interface HeaderProps {
   activeSection: string;
   onSectionChange: (section: string) => void;
+  session: Session | null;
 }
 
-const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
+const Header = ({ activeSection, onSectionChange, session }: HeaderProps) => {
   const [streakDays] = useState(7);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+  };
 
   return (
     <header className="bg-white border-b border-gray-200 px-4 py-3 md:px-6">
@@ -84,24 +91,31 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56 bg-white border border-gray-200 shadow-lg" align="end">
-              <div className="px-3 py-2">
-                <p className="text-sm font-medium text-gray-900">Jane Doe</p>
-                <p className="text-xs text-gray-500">jane.doe@example.com</p>
-              </div>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer" onClick={() => onSectionChange('profile')}>
-                <User className="mr-2 h-4 w-4" />
-                Profile
-              </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer" onClick={() => onSectionChange('settings')}>
-                <Settings className="mr-2 h-4 w-4" />
-                Settings
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer text-red-600">
-                <LogOut className="mr-2 h-4 w-4" />
-                Log out
-              </DropdownMenuItem>
+              {session ? (
+                <>
+                  <div className="px-3 py-2">
+                    <p className="text-sm font-medium text-gray-900">{session.user.email}</p>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="cursor-pointer" onClick={() => onSectionChange('profile')}>
+                    <User className="mr-2 h-4 w-4" />
+                    Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer" onClick={() => onSectionChange('settings')}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="cursor-pointer text-red-600" onClick={handleLogout}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Log out
+                  </DropdownMenuItem>
+                </>
+              ) : (
+                <div className="px-3 py-2">
+                  <p className="text-sm font-medium text-gray-900">Guest</p>
+                </div>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
