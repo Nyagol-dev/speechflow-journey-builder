@@ -1,9 +1,10 @@
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.170.0/http/server.ts";
 
+// Using Deno's native FormData implementation
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
 };
 
 serve(async (req) => {
@@ -24,31 +25,26 @@ serve(async (req) => {
     }
 
     // Convert base64 to binary audio data
-    const binaryString = atob(audioData);
-    const bytes = new Uint8Array(binaryString.length);
-    for (let i = 0; i < binaryString.length; i++) {
-      bytes[i] = binaryString.charCodeAt(i);
-    }
+    const bytes = Uint8Array.from(atob(audioData), c => c.charCodeAt(0));
 
-    // Create form data for OpenAI Whisper API
+    // Create form data for OpenAI Whisper API using Deno's native FormData
     const formData = new FormData();
-    const audioBlob = new Blob([bytes], { type: 'audio/webm' });
-    formData.append('file', audioBlob, 'audio.webm');
+    formData.append('file', new File([bytes], 'audio.webm', { type: 'audio/webm' }));
     formData.append('model', 'whisper-1');
     formData.append('language', 'en');
 
     const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
+        'Authorization': `Bearer ${apiKey}`
       },
       body: formData,
     });
 
     if (!response.ok) {
-      const error = await response.text();
+      const error = await response.json();
       console.error('OpenAI Whisper API error:', error);
-      throw new Error(`Speech recognition failed: ${error}`);
+      throw new Error(`Speech recognition failed: ${error.error?.message || 'Unknown error'}`);
     }
 
     const result = await response.json();

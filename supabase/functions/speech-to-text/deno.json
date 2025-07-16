@@ -1,0 +1,15 @@
+{
+  "imports": {
+    "std/": "https://deno.land/std@0.170.0/",
+    "supabase": "https://esm.sh/@supabase/supabase-js@2.39.0"
+  },
+  "tasks": {
+    "dev": "deno run --allow-net --allow-env --watch index.ts"
+  },
+  "compilerOptions": {
+    "allowJs": true,
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "strict": true
+  },
+  "importMap": "./import_map.json"
+}

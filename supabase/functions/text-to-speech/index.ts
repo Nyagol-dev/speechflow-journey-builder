@@ -1,11 +1,13 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+// @deno-types="https://deno.land/x/typescript@5.2.2/lib/lib.deno.window.d.ts"
+// @deno-types="https://deno.land/x/typescript@5.2.2/lib/lib.dom.d.ts"
+// @deno-types="https://deno.land/x/typescript@5.2.2/lib/lib.esnext.d.ts"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-serve(async (req) => {
+export default async function handler(req: Request) {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -17,7 +19,7 @@ serve(async (req) => {
       throw new Error('Text is required');
     }
 
-    const apiKey = Deno.env.get('OPENAI_API_KEY');
+    const apiKey = Deno.env.get('OPENAI_API_KEY') as string;
     if (!apiKey) {
       throw new Error('OpenAI API key not configured');
     }
@@ -70,4 +72,4 @@ serve(async (req) => {
       }
     );
   }
-});
+}
