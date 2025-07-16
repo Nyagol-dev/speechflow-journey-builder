@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 
-const LogIn = ({ onLogin }) => {
+interface LogInProps {
+  onLogin: () => void;
+  onBack?: () => void;
+}
+
+const LogIn = ({ onLogin, onBack }: LogInProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
@@ -27,7 +33,7 @@ const LogIn = ({ onLogin }) => {
       <div className="w-full max-w-md">
         <form
           onSubmit={handleLogin}
-          className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
+          className="bg-white shadow-md rounded-lg px-8 pt-6 pb-8 mb-4"
         >
           <h1 className="text-2xl font-bold mb-6 text-center">Log In</h1>
           {error && <p className="text-red-500 text-xs italic mb-4">{error}</p>}
@@ -65,13 +71,28 @@ const LogIn = ({ onLogin }) => {
               required
             />
           </div>
-          <div className="flex items-center justify-between">
-            <button
-              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              type="submit"
-            >
-              Log In
-            </button>
+          <div className="flex flex-col space-y-4">
+            <Button className="w-full" type="submit">
+              Sign In
+            </Button>
+            {onBack && (
+              <Button 
+                variant="outline" 
+                className="w-full"
+                type="button"
+                onClick={onBack}
+              >
+                Back to Welcome
+              </Button>
+            )}
+            <div className="text-center">
+              <a
+                className="inline-block align-baseline text-sm text-blue-500 hover:text-blue-800 hover:underline cursor-pointer"
+                onClick={() => {/* TODO: Implement forgot password */}}
+              >
+                Forgot Password?
+              </a>
+            </div>
           </div>
         </form>
       </div>

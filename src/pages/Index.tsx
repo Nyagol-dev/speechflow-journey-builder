@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import Dashboard from '@/components/Dashboard';
 import AccessibilityPanel from '@/components/AccessibilityPanel';
@@ -7,41 +8,37 @@ import SpeechAnalytics from '@/components/SpeechAnalytics';
 import LessonLibrary from '@/components/LessonLibrary';
 import ProfileSettings from '@/components/ProfileSettings';
 import SettingsPanel from '@/components/SettingsPanel';
-import HomePage from '@/components/HomePage';
-import LogIn from '@/components/LogIn';
-import SignUp from '@/components/SignUp';
 import { supabase } from '@/integrations/supabase/client';
 import { Session } from '@supabase/supabase-js';
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState('dashboard');
   const [session, setSession] = useState<Session | null>(null);
-  const [view, setView] = useState('home'); // 'home', 'login', 'signup'
+  const navigate = useNavigate();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
-    });
+      if (!session) {
+        navigate('/');
+      }
+    };
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    getSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
+      if (!session) {
+        navigate('/');
+      }
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [navigate]);
 
   const renderContent = () => {
-    if (!session) {
-      if (view === 'login') {
-        return <LogIn onLogin={() => setView('home')} />;
-      }
-      if (view === 'signup') {
-        return <SignUp onSignUp={() => setView('home')} />;
-      }
-      return <HomePage onLogin={() => setView('login')} onSignUp={() => setView('signup')} />;
-    }
+    if (!session) return null;
 
     switch (activeSection) {
       case 'lessons':
@@ -77,16 +74,20 @@ const Index = () => {
           </div>
         );
       default:
-        return <Dashboard user={session.user} />;
+        return session?.user ? <Dashboard user={session.user} /> : null;
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {<Header activeSection={activeSection} onSectionChange={setActiveSection} session={session} />}
+      <Header
+        activeSection={activeSection}
+        onSectionChange={setActiveSection}
+        session={session}
+      />
       <AccessibilityPanel />
       
-      <main className="max-w-7xl mx-auto px-4 py-8 md:px-6">
+      <main className="container mx-auto px-4 py-8">
         {renderContent()}
       </main>
     </div>

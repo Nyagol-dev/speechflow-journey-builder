@@ -1,7 +1,14 @@
 import React, { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-const SignUp = ({ onSignUp }) => {
+import { Button } from '@/components/ui/button';
+
+interface SignUpProps {
+  onSignUp: () => void;
+  onBack?: () => void;
+}
+
+const SignUp = ({ onSignUp, onBack }: SignUpProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
@@ -30,7 +37,7 @@ const SignUp = ({ onSignUp }) => {
       <div className="w-full max-w-md">
         <form
           onSubmit={handleSignUp}
-          className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
+          className="bg-white shadow-md rounded-lg px-8 pt-6 pb-8 mb-4"
         >
           <h1 className="text-2xl font-bold mb-6 text-center">Sign Up</h1>
           {error && <p className="text-red-500 text-xs italic mb-4">{error}</p>}
@@ -73,13 +80,20 @@ const SignUp = ({ onSignUp }) => {
               required
             />
           </div>
-          <div className="flex items-center justify-between">
-            <button
-              className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              type="submit"
-            >
-              Sign Up
-            </button>
+          <div className="space-y-4">
+            <Button className="w-full" type="submit">
+              Create Account
+            </Button>
+            {onBack && (
+              <Button 
+                variant="outline" 
+                className="w-full"
+                type="button"
+                onClick={onBack}
+              >
+                Back to Welcome
+              </Button>
+            )}
           </div>
         </form>
       </div>
