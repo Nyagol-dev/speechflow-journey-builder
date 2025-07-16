@@ -14,21 +14,34 @@ const SignUp = ({ onSignUp, onBack }: SignUpProps) => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
 
-  const handleSignUp = async (e) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(false);
 
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
 
-    if (error) {
+      if (error) {
+        throw error;
+      }
+
+      // If we have a session, update the UI and call onSignUp
+      if (data.session) {
+        setSuccess(true);
+        onSignUp();
+      } else {
+        // If email confirmation is required, show success message
+        setSuccess(true);
+        // Still call onSignUp to proceed to onboarding
+        // The WelcomePage will handle the case where the user needs to confirm their email
+        onSignUp();
+      }
+    } catch (error: any) {
       setError(error.message);
-    } else {
-      setSuccess(true);
-      onSignUp();
     }
   };
 

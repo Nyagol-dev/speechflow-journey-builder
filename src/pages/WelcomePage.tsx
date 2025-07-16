@@ -29,22 +29,47 @@ const WelcomePage = () => {
   };
 
   const handleCompleteOnboarding = async () => {
-    // Save user preferences to the database
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const { error } = await supabase
-        .from('user_preferences')
-        .upsert({
-          user_id: user.id,
-          improvement_areas: selectedImprovements,
-          onboarded: true,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        });
+    try {
+      // First, try to get the current session
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
       
-      if (!error) {
-        navigate('/home');
+      if (userError || !user) {
+        // If no user session, try to get the session from the current session
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          // Save preferences with the session user
+          await saveUserPreferences(session.user.id);
+        } else {
+          console.error('No user session found');
+          // Redirect to login if no session is found
+          navigate('/');
+        }
+      } else {
+        // User is logged in, save preferences
+        await saveUserPreferences(user.id);
       }
+    } catch (error) {
+      console.error('Error during onboarding:', error);
+      // Handle error appropriately
+    }
+  };
+
+  const saveUserPreferences = async (userId: string) => {
+    const { error } = await supabase
+      .from('user_preferences')
+      .upsert({
+        user_id: userId,
+        improvement_areas: selectedImprovements,
+        onboarded: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      });
+    
+    if (error) {
+      console.error('Error saving preferences:', error);
+    } else {
+      // Navigate to home after successful save
+      navigate('/home');
     }
   };
 
