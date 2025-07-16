@@ -7,9 +7,10 @@ import ProgressRing from './ProgressRing';
 import LessonCard from './LessonCard';
 import AchievementBadge from './AchievementBadge';
 import AudioRecorder from './AudioRecorder';
-import { Play, Award, Clock, User } from 'lucide-react';
+import { Play, Award, Clock, User as UserIcon } from 'lucide-react';
+import { User } from '@supabase/supabase-js';
 
-const Dashboard = () => {
+const Dashboard = ({ user }: { user: User }) => {
   const [dailyProgress] = useState(75);
   const [userStats] = useState({
     xp: 2450,
@@ -78,7 +79,7 @@ const Dashboard = () => {
       {/* Welcome Section */}
       <div className="text-center">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Welcome back, Jane!
+          Welcome back, {user.email}!
         </h1>
         <p className="text-gray-600">
           You're doing great! Keep up the excellent progress.
