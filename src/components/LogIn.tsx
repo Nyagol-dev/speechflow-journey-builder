@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { authService } from '@/services/authService';
+import { useAuthContext } from '@/context/AuthProvider';
 
 interface LogInProps {
   onLogin: () => void;
@@ -11,17 +11,17 @@ const LogIn = ({ onLogin, onBack }: LogInProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
+  const { signIn } = useAuthContext();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError(null);
 
-    const { user, error } = await authService.signInWithAutoConfirm(email, password);
-
-    if (error) {
-      setError(error.message || 'Login failed');
-    } else {
+    try {
+      await signIn(email, password);
       onLogin();
+    } catch (err: any) {
+      setError(err.message || 'Login failed');
     }
   };
 

@@ -15,6 +15,26 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  xp: {
+    type: Number,
+    default: 0,
+  },
+  level: {
+    type: Number,
+    default: 1,
+  },
+  lessonsCompleted: {
+    type: Number,
+    default: 0,
+  },
+  speakingTime: {
+    type: Number,
+    default: 0,
+  },
+  improvementScore: {
+    type: Number,
+    default: 0,
+  },
 }, { timestamps: true });
 
 // Match user entered password to hashed password in database

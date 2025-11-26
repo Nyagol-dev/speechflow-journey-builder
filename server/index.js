@@ -3,7 +3,8 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const dotenv = require("dotenv");
 
-dotenv.config({ path: "../.env" }); // Load env vars from root
+const path = require("path");
+dotenv.config({ path: path.resolve(__dirname, "../.env") }); // Load env vars from root
 
 const app = express();
 const PORT = process.env.PORT || 5000;

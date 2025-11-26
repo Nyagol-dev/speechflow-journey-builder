@@ -11,7 +11,7 @@ export const useAuth = () => {
     setError(null);
     try {
       const response = await authService.signUpWithAutoConfirm(email, password);
-      const user = 'user' in response ? response.user : response.data?.user;
+      const user = response.user;
       setUser(user || null);
       return user;
     } catch (err) {
@@ -27,7 +27,7 @@ export const useAuth = () => {
     setError(null);
     try {
       const response = await authService.signInWithAutoConfirm(email, password);
-      const user = 'user' in response ? response.user : response.data?.user;
+      const user = response.user;
       setUser(user || null);
       return user;
     } catch (err) {
@@ -38,9 +38,22 @@ export const useAuth = () => {
     }
   };
 
+  const checkUser = async () => {
+    setLoading(true);
+    try {
+      const user = await authService.getCurrentUser();
+      setUser(user);
+    } catch (error) {
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return { 
     signUp, 
     signIn, 
+    checkUser,
     user, 
     loading, 
     error 

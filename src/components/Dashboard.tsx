@@ -10,17 +10,15 @@ import AudioRecorder from './AudioRecorder';
 import { Play, Award, Clock, User as UserIcon } from 'lucide-react';
 interface User {
   email?: string;
+  xp?: number;
+  level?: number;
+  lessonsCompleted?: number;
+  speakingTime?: number;
+  improvementScore?: number;
 }
 
 const Dashboard = ({ user }: { user: User }) => {
   const [dailyProgress] = useState(75);
-  const [userStats] = useState({
-    xp: 2450,
-    level: 8,
-    lessonsCompleted: 24,
-    speakingTime: 180, // minutes
-    improvementScore: 89
-  });
 
   const currentLesson = {
     title: "Consonant Clarity",
@@ -116,25 +114,25 @@ const Dashboard = ({ user }: { user: User }) => {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-primary">{userStats.xp.toLocaleString()}</div>
+            <div className="text-2xl font-bold text-primary">{(user.xp || 0).toLocaleString()}</div>
             <div className="text-sm text-gray-600">XP Points</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-success">Level {userStats.level}</div>
+            <div className="text-2xl font-bold text-success">Level {user.level || 1}</div>
             <div className="text-sm text-gray-600">Current Level</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-warning">{userStats.lessonsCompleted}</div>
+            <div className="text-2xl font-bold text-warning">{user.lessonsCompleted || 0}</div>
             <div className="text-sm text-gray-600">Lessons Done</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-purple-600">{userStats.speakingTime}m</div>
+            <div className="text-2xl font-bold text-purple-600">{user.speakingTime || 0}m</div>
             <div className="text-sm text-gray-600">Speaking Time</div>
           </CardContent>
         </Card>

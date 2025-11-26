@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { authService } from '@/services/authService';
+import { useAuthContext } from '@/context/AuthProvider';
 
 import { Button } from '@/components/ui/button';
 
@@ -13,6 +13,7 @@ const SignUp = ({ onSignUp, onBack }: SignUpProps) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const { signUp } = useAuthContext();
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,16 +21,9 @@ const SignUp = ({ onSignUp, onBack }: SignUpProps) => {
     setSuccess(false);
 
     try {
-      const { user, error } = await authService.signUpWithAutoConfirm(email, password);
-
-      if (error) {
-        throw error;
-      }
-
-      if (user) {
-        setSuccess(true);
-        onSignUp();
-      }
+      await signUp(email, password);
+      setSuccess(true);
+      onSignUp();
     } catch (error: any) {
       setError(error.message || 'Signup failed');
     }

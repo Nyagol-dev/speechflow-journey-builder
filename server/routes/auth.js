@@ -34,6 +34,11 @@ router.post('/signup', async (req, res) => {
         _id: user._id,
         email: user.email,
         token: generateToken(user._id),
+        xp: user.xp,
+        level: user.level,
+        lessonsCompleted: user.lessonsCompleted,
+        speakingTime: user.speakingTime,
+        improvementScore: user.improvementScore,
       });
     } else {
       res.status(400).json({ message: 'Invalid user data' });
@@ -57,6 +62,11 @@ router.post('/login', async (req, res) => {
         _id: user._id,
         email: user.email,
         token: generateToken(user._id),
+        xp: user.xp,
+        level: user.level,
+        lessonsCompleted: user.lessonsCompleted,
+        speakingTime: user.speakingTime,
+        improvementScore: user.improvementScore,
       });
     } else {
       res.status(401).json({ message: 'Invalid email or password' });
@@ -74,6 +84,11 @@ router.get('/me', protect, async (req, res) => {
     _id: req.user._id,
     email: req.user.email,
     isAdmin: req.user.isAdmin,
+    xp: req.user.xp,
+    level: req.user.level,
+    lessonsCompleted: req.user.lessonsCompleted,
+    speakingTime: req.user.speakingTime,
+    improvementScore: req.user.improvementScore,
   });
 });
 

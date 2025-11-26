@@ -9,19 +9,14 @@ import { authService } from '@/services/authService';
 import WelcomePage from '@/pages/WelcomePage';
 import Index from "@/pages/Index";
 import NotFound from "@/pages/NotFound";
+import { AuthProvider, useAuthContext } from '@/context/AuthProvider';
 
 const queryClient = new QueryClient();
 
-const App = () => {
-  const [session, setSession] = useState(null);
-  const [loading, setLoading] = useState(true);
+const AppContent = () => {
+  const { user, loading, checkUser } = useAuthContext();
 
   useEffect(() => {
-    const checkUser = async () => {
-      const user = await authService.getCurrentUser();
-      setSession(user ? { user } : null);
-      setLoading(false);
-    };
     checkUser();
   }, []);
 
@@ -30,26 +25,35 @@ const App = () => {
   }
 
   return (
+    <Routes>
+      <Route 
+        path="/" 
+        element={user ? <Navigate to="/home" /> : <WelcomePage />} 
+      />
+      <Route 
+        path="/home" 
+        element={user ? <Index /> : <Navigate to="/" />} 
+      />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+};
+
+const App = () => {
+  return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route 
-              path="/" 
-              element={session ? <Navigate to="/home" /> : <WelcomePage />} 
-            />
-            <Route 
-              path="/home" 
-              element={session ? <Index /> : <Navigate to="/" />} 
-            />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+        <AuthProvider>
+          <BrowserRouter>
+            <AppContent />
+          </BrowserRouter>
+        </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );
 };
+
 
 export default App;

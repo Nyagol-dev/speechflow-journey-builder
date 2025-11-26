@@ -8,27 +8,21 @@ import SpeechAnalytics from '@/components/SpeechAnalytics';
 import LessonLibrary from '@/components/LessonLibrary';
 import ProfileSettings from '@/components/ProfileSettings';
 import SettingsPanel from '@/components/SettingsPanel';
-import { authService } from '@/services/authService';
+import { useAuthContext } from '@/context/AuthProvider';
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState('dashboard');
-  const [session, setSession] = useState<any | null>(null);
+  const { user } = useAuthContext();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const getSession = async () => {
-      const user = await authService.getCurrentUser();
-      setSession(user ? { user } : null);
-      if (!user) {
-        navigate('/');
-      }
-    };
-
-    getSession();
-  }, [navigate]);
+    if (!user) {
+      navigate('/');
+    }
+  }, [user, navigate]);
 
   const renderContent = () => {
-    if (!session) return null;
+    if (!user) return null;
 
     switch (activeSection) {
       case 'lessons':
@@ -64,7 +58,7 @@ const Index = () => {
           </div>
         );
       default:
-        return session?.user ? <Dashboard user={session.user} /> : null;
+        return <Dashboard user={user} />;
     }
   };
 
@@ -73,7 +67,7 @@ const Index = () => {
       <Header
         activeSection={activeSection}
         onSectionChange={setActiveSection}
-        session={session}
+        session={user ? { user } : null}
       />
       <AccessibilityPanel />
       
