@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
+import { authService } from '@/services/authService';
 
 interface LogInProps {
   onLogin: () => void;
@@ -16,13 +16,10 @@ const LogIn = ({ onLogin, onBack }: LogInProps) => {
     e.preventDefault();
     setError(null);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { user, error } = await authService.signInWithAutoConfirm(email, password);
 
     if (error) {
-      setError(error.message);
+      setError(error.message || 'Login failed');
     } else {
       onLogin();
     }

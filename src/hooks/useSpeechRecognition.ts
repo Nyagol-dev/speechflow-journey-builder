@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { api } from '@/services/api';
 
 export const useSpeechRecognition = () => {
   const [isRecording, setIsRecording] = useState(false);
@@ -65,15 +65,9 @@ export const useSpeechRecognition = () => {
       const arrayBuffer = await audioBlob.arrayBuffer();
       const base64Audio = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
       
-      // Send to Supabase edge function
-      const { data, error } = await supabase.functions.invoke('speech-to-text', {
-        body: { 
-          audioData: base64Audio
-        }
-      });
+      // Send to backend API
+      const data = await api.speechToText(base64Audio);
 
-      if (error) throw error;
-      
       if (data.success) {
         setTranscript(data.transcript);
       } else {

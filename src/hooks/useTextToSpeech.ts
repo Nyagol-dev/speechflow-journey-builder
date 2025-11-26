@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { api } from '@/services/api';
 
 export const useTextToSpeech = () => {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -16,14 +16,7 @@ export const useTextToSpeech = () => {
       setError(null);
       setIsGenerating(true);
       
-      const { data, error } = await supabase.functions.invoke('text-to-speech', {
-        body: { 
-          text: text.trim(),
-          voice: voice || 'alloy'
-        }
-      });
-
-      if (error) throw error;
+      const data = await api.textToSpeech(text.trim(), voice || 'alloy');
       
       if (data.success) {
         // Convert base64 to audio blob

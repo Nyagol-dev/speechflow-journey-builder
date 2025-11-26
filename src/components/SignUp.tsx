@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { authService } from '@/services/authService';
 
 import { Button } from '@/components/ui/button';
 
@@ -20,28 +20,18 @@ const SignUp = ({ onSignUp, onBack }: SignUpProps) => {
     setSuccess(false);
 
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-      });
+      const { user, error } = await authService.signUpWithAutoConfirm(email, password);
 
       if (error) {
         throw error;
       }
 
-      // If we have a session, update the UI and call onSignUp
-      if (data.session) {
+      if (user) {
         setSuccess(true);
-        onSignUp();
-      } else {
-        // If email confirmation is required, show success message
-        setSuccess(true);
-        // Still call onSignUp to proceed to onboarding
-        // The WelcomePage will handle the case where the user needs to confirm their email
         onSignUp();
       }
     } catch (error: any) {
-      setError(error.message);
+      setError(error.message || 'Signup failed');
     }
   };
 

@@ -8,33 +8,23 @@ import SpeechAnalytics from '@/components/SpeechAnalytics';
 import LessonLibrary from '@/components/LessonLibrary';
 import ProfileSettings from '@/components/ProfileSettings';
 import SettingsPanel from '@/components/SettingsPanel';
-import { supabase } from '@/integrations/supabase/client';
-import { Session } from '@supabase/supabase-js';
+import { authService } from '@/services/authService';
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState('dashboard');
-  const [session, setSession] = useState<Session | null>(null);
+  const [session, setSession] = useState<any | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
-      if (!session) {
+      const user = await authService.getCurrentUser();
+      setSession(user ? { user } : null);
+      if (!user) {
         navigate('/');
       }
     };
 
     getSession();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      if (!session) {
-        navigate('/');
-      }
-    });
-
-    return () => subscription.unsubscribe();
   }, [navigate]);
 
   const renderContent = () => {

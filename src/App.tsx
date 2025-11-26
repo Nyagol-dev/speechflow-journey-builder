@@ -5,7 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { authService } from '@/services/authService';
 import WelcomePage from '@/pages/WelcomePage';
 import Index from "@/pages/Index";
 import NotFound from "@/pages/NotFound";
@@ -17,16 +17,12 @@ const App = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
+    const checkUser = async () => {
+      const user = await authService.getCurrentUser();
+      setSession(user ? { user } : null);
       setLoading(false);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
-    return () => subscription.unsubscribe();
+    };
+    checkUser();
   }, []);
 
   if (loading) {

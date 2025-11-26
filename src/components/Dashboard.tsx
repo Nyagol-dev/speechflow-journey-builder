@@ -8,7 +8,9 @@ import LessonCard from './LessonCard';
 import AchievementBadge from './AchievementBadge';
 import AudioRecorder from './AudioRecorder';
 import { Play, Award, Clock, User as UserIcon } from 'lucide-react';
-import { User } from '@supabase/supabase-js';
+interface User {
+  email?: string;
+}
 
 const Dashboard = ({ user }: { user: User }) => {
   const [dailyProgress] = useState(75);

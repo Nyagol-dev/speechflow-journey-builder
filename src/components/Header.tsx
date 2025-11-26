@@ -11,20 +11,20 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { supabase } from '@/integrations/supabase/client';
-import { Session } from '@supabase/supabase-js';
+import { authService } from '@/services/authService';
 
 interface HeaderProps {
   activeSection: string;
   onSectionChange: (section: string) => void;
-  session: Session | null;
+  session: any | null;
 }
 
 const Header = ({ activeSection, onSectionChange, session }: HeaderProps) => {
   const [streakDays] = useState(7);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
+  const handleLogout = () => {
+    authService.logout();
+    window.location.reload(); // Simple way to reset state
   };
 
   return (

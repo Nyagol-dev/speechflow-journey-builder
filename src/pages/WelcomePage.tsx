@@ -3,9 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import LogIn from '@/components/LogIn';
 import SignUp from '@/components/SignUp';
-import { supabase } from '@/integrations/supabase/client';
+import { authService } from '@/services/authService';
 import { useNavigate } from 'react-router-dom';
-import { Database } from '@/types/supabase';
 
 const improvementOptions = [
   { id: 'pronunciation', label: 'Pronunciation' },
@@ -30,46 +29,17 @@ const WelcomePage = () => {
 
   const handleCompleteOnboarding = async () => {
     try {
-      // First, try to get the current session
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      const user = await authService.getCurrentUser();
       
-      if (userError || !user) {
-        // If no user session, try to get the session from the current session
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          // Save preferences with the session user
-          await saveUserPreferences(session.user.id);
-        } else {
-          console.error('No user session found');
-          // Redirect to login if no session is found
-          navigate('/');
-        }
+      if (!user) {
+        navigate('/');
       } else {
-        // User is logged in, save preferences
-        await saveUserPreferences(user.id);
+        // TODO: Implement save preferences API
+        console.log('Saving preferences for', user.email, selectedImprovements);
+        navigate('/home');
       }
     } catch (error) {
       console.error('Error during onboarding:', error);
-      // Handle error appropriately
-    }
-  };
-
-  const saveUserPreferences = async (userId: string) => {
-    const { error } = await supabase
-      .from('user_preferences')
-      .upsert({
-        user_id: userId,
-        improvement_areas: selectedImprovements,
-        onboarded: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      });
-    
-    if (error) {
-      console.error('Error saving preferences:', error);
-    } else {
-      // Navigate to home after successful save
-      navigate('/home');
     }
   };
 
