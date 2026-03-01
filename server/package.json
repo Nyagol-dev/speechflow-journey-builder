@@ -1,14 +1,16 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "description": "",
+  "description": "SpeechFlow Journey Builder – Express.js API server",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "type": "commonjs",
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
@@ -16,10 +18,14 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "express-rate-limit": "^8.2.1",
     "google-tts-api": "^2.0.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^9.0.0",
     "multer": "^2.0.2",
     "openai": "^6.9.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
   }
 }
