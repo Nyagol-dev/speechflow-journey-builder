@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Mic, MicOff, Volume2, Copy, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -70,7 +70,32 @@ const AudioRecorder = () => {
   };
 
   // Simulated waveform bars for visual feedback
-  const waveformBars = Array.from({ length: 20 }, (_, i) => i);
+  const BAR_COUNT = 20;
+  const [barHeights, setBarHeights] = useState<number[]>(() =>
+    Array.from({ length: BAR_COUNT }, () => 8)
+  );
+  const animFrameRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!isRecording) {
+      if (animFrameRef.current !== null) {
+        cancelAnimationFrame(animFrameRef.current);
+        animFrameRef.current = null;
+      }
+      return;
+    }
+    const animate = () => {
+      setBarHeights(Array.from({ length: BAR_COUNT }, () => Math.random() * 40 + 8));
+      animFrameRef.current = requestAnimationFrame(animate);
+    };
+    animFrameRef.current = requestAnimationFrame(animate);
+    return () => {
+      if (animFrameRef.current !== null) {
+        cancelAnimationFrame(animFrameRef.current);
+        animFrameRef.current = null;
+      }
+    };
+  }, [isRecording]);
 
   return (
     <div className="w-full max-w-2xl mx-auto space-y-6">
@@ -82,16 +107,12 @@ const AudioRecorder = () => {
         <CardContent className="text-center space-y-6">
           {/* Waveform Visualization */}
           <div className="flex items-center justify-center space-x-1 h-16">
-            {waveformBars.map((bar) => (
+            {barHeights.map((height, bar) => (
               <div
                 key={bar}
-                className={`w-1 bg-primary rounded-full transition-all duration-150 ${
-                  isRecording 
-                    ? 'animate-pulse' 
-                    : 'h-2'
-                }`}
+                className="w-1 bg-primary rounded-full transition-all duration-150"
                 style={{
-                  height: isRecording ? `${Math.random() * 40 + 8}px` : '8px',
+                  height: `${isRecording ? height : 8}px`,
                   animationDelay: `${bar * 0.1}s`
                 }}
               />
